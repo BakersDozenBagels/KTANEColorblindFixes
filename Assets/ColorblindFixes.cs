@@ -35,9 +35,9 @@ public class ColorblindFixes : MonoBehaviour
     private IEnumerator AddKeyboard(Component script)
     {
         Debug.LogFormat("[Colorblind Fixes] Attempting to add keyboard support...");
-        KMSelectable sel = script.GetComponent<KMSelectable>();
-        sel.OnDeselect += () => _isFocused = true;
-        sel.OnSelect += () => _isFocused = false;
+        Component fh = script.GetComponent("FloatingHoldable");
+        fh.GetType().GetField("OnHoldComplete").SetValue(fh, Delegate.Combine((Action)fh.GetType().GetField("OnHoldComplete").GetValue(fh), new Action(() => _isFocused = true)));
+        fh.GetType().GetField("OnLetGo").SetValue(fh, Delegate.Combine((Action)fh.GetType().GetField("OnLetGo").GetValue(fh), new Action(() => _isFocused = false)));
         MethodInfo update = script.GetType().GetMethod("UpdateDisplay", BindingFlags.NonPublic | BindingFlags.Instance);
         FieldInfo field = script.GetType().GetField("_moduleIndex", BindingFlags.NonPublic | BindingFlags.Instance);
         KMAudio audio = script.GetComponent<KMAudio>();
